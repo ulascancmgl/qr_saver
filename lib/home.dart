@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'downloaded_pdf.dart';
 import 'qr_code.dart';
 import 'url_list.dart';
 
@@ -51,6 +52,20 @@ class HomePage extends StatelessWidget {
                 backgroundColor: Colors.purple,
               ),
               child: Text('Kaydedilenler'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DownloadedListPage(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.purple,
+              ),
+              child: Text('Yüklenen PDFler'),
             ),
           ],
         ),

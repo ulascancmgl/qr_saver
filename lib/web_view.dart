@@ -23,35 +23,58 @@ class _WebViewPageState extends State<WebViewPage> {
   void initState() {
     super.initState();
     if (widget.url.endsWith('.pdf')) {
-      downloadAndDisplayPDF();
+      displayPDF();
     }
   }
 
-  Future<void> downloadAndDisplayPDF() async {
+  Future<void> displayPDF() async {
     final directory = await getTemporaryDirectory();
     final fileName = widget.url.split('/').last;
     final filePath = '${directory.path}/$fileName';
     final file = File(filePath);
 
-    if (!file.existsSync()) {
-      final dio = Dio();
-      try {
-        await dio.download(widget.url, filePath);
+    if (file.existsSync()) {
+      final fileStat = file.statSync();
+      final lastModified = fileStat.modified;
+      final currentTime = DateTime.now();
+      final difference = currentTime.difference(lastModified);
+      final hoursPassed = difference.inHours;
+
+      if (hoursPassed >= 2) {
+        deletePDF(file);
+      } else {
         setState(() {
           _pdfFilePath = filePath;
         });
-      } catch (e) {
-        print('Error downloading PDF: $e');
       }
+    } else {
+      downloadPDF();
     }
   }
 
-  Future<void> deletePDF() async {
-    if (_pdfFilePath != null) {
-      final file = File(_pdfFilePath!);
-      if (file.existsSync()) {
-        await file.delete();
-      }
+  Future<void> downloadPDF() async {
+    final directory = await getTemporaryDirectory();
+    final fileName = widget.url.split('/').last;
+    final filePath = '${directory.path}/$fileName';
+    final file = File(filePath);
+
+    final dio = Dio();
+    try {
+      await dio.download(widget.url, filePath);
+      setState(() {
+        _pdfFilePath = filePath;
+      });
+    } catch (e) {
+      print('Error downloading PDF: $e');
+    }
+  }
+
+  Future<void> deletePDF(File file) async {
+    try {
+      await file.delete();
+      downloadPDF();
+    } catch (e) {
+      print('Error deleting PDF: $e');
     }
   }
 
@@ -59,7 +82,6 @@ class _WebViewPageState extends State<WebViewPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        await deletePDF();
         return true;
       },
       child: Scaffold(
@@ -70,17 +92,29 @@ class _WebViewPageState extends State<WebViewPage> {
         backgroundColor: Colors.blueGrey,
         body: _pdfFilePath != null
             ? PDFView(
-          filePath: _pdfFilePath!,
-        )
+                filePath: _pdfFilePath!,
+              )
             : InAppWebView(
-          initialUrlRequest: URLRequest(url: Uri.parse(widget.url)),
-          onWebViewCreated: (controller) {
-            _webViewController = controller;
-          },
-        ),
+                initialUrlRequest: URLRequest(url: Uri.parse(widget.url)),
+                onWebViewCreated: (controller) {
+                  _webViewController = controller;
+
+                  _webViewController?.setOptions(
+                    options: InAppWebViewGroupOptions(
+                      android: AndroidInAppWebViewOptions(
+                        builtInZoomControls: false,
+                        useWideViewPort: true,
+                        loadWithOverviewMode: true,
+                        hardwareAcceleration: false,
+                      ),
+                      ios: IOSInAppWebViewOptions(
+                        allowsInlineMediaPlayback: true,
+                      ),
+                    ),
+                  );
+                },
+              ),
       ),
     );
   }
-
 }
-
