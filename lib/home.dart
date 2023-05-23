@@ -11,7 +11,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Row(
           children: [
-            Icon(Icons.restaurant), // Restoran sembolü eklendi
+            Icon(Icons.restaurant),
             SizedBox(width: 8),
             Text('Qr Menu'),
           ],
