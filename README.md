@@ -4,13 +4,13 @@ QR Menu Saver
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This project is for users to save their links, spesificly in the interest of QR Code Menus.
 
-A few resources to get you started if this is your first Flutter project:
+- Inside there is a qr scanner which can scan and go to the scanned url.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Later user can go to the saved url's page to see which urls they have went to previously.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- In there they can also add url's they want to favorites to be displayed in different page.
+
+- Inside favorites, user can set a new name to the link instead of having the link as a name.
+
