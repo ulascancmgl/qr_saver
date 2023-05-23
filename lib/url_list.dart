@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'web_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class URLListPage extends StatefulWidget {
   @override
   _URLListPageState createState() => _URLListPageState();
@@ -11,6 +10,7 @@ class URLListPage extends StatefulWidget {
 class _URLListPageState extends State<URLListPage> {
   List<String> visitedUrls = [];
   List<String> favoriteUrls = [];
+  List<String> favoriteNames = [];
 
   @override
   void initState() {
@@ -178,14 +178,30 @@ class _URLListPageState extends State<URLListPage> {
   Future<void> toggleFavorite(String url) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> savedUrls = prefs.getStringList('favorite_urls') ?? [];
-    if (savedUrls.contains(url)) {
-      savedUrls.remove(url);
+    List<String> savedNames = prefs.getStringList('favorite_names') ?? [];
+
+    int existingIndex = savedUrls.indexOf(url);
+
+    if (existingIndex != -1) {
+      // Remove the URL and its corresponding name if it exists in favorites
+      savedUrls.removeAt(existingIndex);
+      if (existingIndex < savedNames.length) {
+        savedNames.removeAt(existingIndex);
+      }
     } else {
+      // Add the URL with the default name if it doesn't exist in favorites
       savedUrls.add(url);
+      savedNames.add(url); // Use the URL itself as the default name
     }
+
     await prefs.setStringList('favorite_urls', savedUrls);
+    await prefs.setStringList('favorite_names', savedNames);
+
     setState(() {
       favoriteUrls = savedUrls;
+      favoriteNames = savedNames.isNotEmpty ? savedNames : List<String>.filled(savedUrls.length, '');
     });
   }
+
+
 }
