@@ -86,10 +86,23 @@ class _WebViewPageState extends State<WebViewPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Website'),
-          backgroundColor: Colors.purple,
+          title: Text('Website',
+              style: TextStyle(fontFamily: 'Helvetica', color: Colors.white)),
+          backgroundColor: Colors.transparent,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.deepPurpleAccent.withOpacity(0.8),
+                  Colors.lightBlue.withOpacity(0.4),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.topRight,
+              ),
+            ),
+          ),
         ),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.transparent,
         body: _pdfFilePath != null
             ? PDFView(
                 filePath: _pdfFilePath!,

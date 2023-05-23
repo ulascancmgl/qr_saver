@@ -3,6 +3,10 @@ import 'package:qr_saver/web_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FavoritePage extends StatefulWidget {
+  final String currentLanguage;
+
+  FavoritePage({required this.currentLanguage});
+
   @override
   _FavoritePageState createState() => _FavoritePageState();
 }
@@ -10,6 +14,27 @@ class FavoritePage extends StatefulWidget {
 class _FavoritePageState extends State<FavoritePage> {
   List<String> favoriteUrls = [];
   List<String> favoriteNames = [];
+
+  Map<String, Map<String, String>> allTranslations = {
+    'en': {
+      'Favorilerim': 'My Favorites',
+      'İsim ekle': 'Add name',
+      'İptal et': 'Cancel',
+      'Kaydet': 'Save',
+    },
+    'tr': {
+      'My Favorites': 'Favorilerim',
+      'Add name': 'İsim ekle',
+      'Cancel': 'İptal et',
+      'Save': 'Kaydet',
+    },
+  };
+
+  String _getTranslatedString(String key) {
+    Map<String, String> translations =
+        allTranslations[widget.currentLanguage] ?? {};
+    return translations[key] ?? key;
+  }
 
   @override
   void initState() {
@@ -21,36 +46,63 @@ class _FavoritePageState extends State<FavoritePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Favorite URLs'),
-        backgroundColor: Colors.purple,
+        title: Text(_getTranslatedString('Favorilerim')),
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.deepPurpleAccent.withOpacity(0.8),
+                Colors.lightBlue.withOpacity(0.4),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.topRight,
+            ),
+          ),
+        ),
       ),
-      backgroundColor: Colors.blueGrey,
-      body: ListView.builder(
-        itemCount: favoriteUrls.length,
-        itemBuilder: (context, index) {
-          final url = favoriteUrls[index];
-          final name = favoriteNames.length > index ? favoriteNames[index] : null;
-          return ListTile(
-            title: GestureDetector(
-              child: Text(name ?? url, style: TextStyle(decoration: TextDecoration.underline)),
-              onTap: () {
-                String prefixedUrl = addPrefixToUrl(url);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WebViewPage(url: prefixedUrl),
-                  ),
-                );
-              },
-            ),
-            trailing: IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                _showNameInputDialog(index);
-              },
-            ),
-          );
-        },
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/pattern.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: ListView.builder(
+          itemCount: favoriteUrls.length,
+          itemBuilder: (context, index) {
+            final url = favoriteUrls[index];
+            final name =
+                favoriteNames.length > index ? favoriteNames[index] : null;
+            return ListTile(
+              title: GestureDetector(
+                child: Text(name ?? url,
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      fontFamily: 'Helvetica',
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    )),
+                onTap: () {
+                  String prefixedUrl = addPrefixToUrl(url);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WebViewPage(url: prefixedUrl),
+                    ),
+                  );
+                },
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () {
+                  _showNameInputDialog(index);
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -67,9 +119,10 @@ class _FavoritePageState extends State<FavoritePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        TextEditingController textController = TextEditingController(text: name);
+        TextEditingController textController =
+            TextEditingController(text: name);
         return AlertDialog(
-          title: Text('Add Name'),
+          title: Text(_getTranslatedString('İsim ekle')),
           content: TextField(
             controller: textController,
             onChanged: (value) {
@@ -78,13 +131,13 @@ class _FavoritePageState extends State<FavoritePage> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text(_getTranslatedString('İptal et')),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Save'),
+              child: Text(_getTranslatedString('Kaydet')),
               onPressed: () {
                 setState(() {
                   if (favoriteNames.length > index) {
@@ -109,7 +162,9 @@ class _FavoritePageState extends State<FavoritePage> {
     List<String> savedNames = prefs.getStringList('favorite_names') ?? [];
     setState(() {
       favoriteUrls = savedUrls;
-      favoriteNames = savedNames.isNotEmpty ? savedNames : List<String>.filled(savedUrls.length, '');
+      favoriteNames = savedNames.isNotEmpty
+          ? savedNames
+          : List<String>.filled(savedUrls.length, '');
     });
   }
 

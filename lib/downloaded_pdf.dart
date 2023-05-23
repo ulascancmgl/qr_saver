@@ -19,7 +19,8 @@ class _DownloadedListPageState extends State<DownloadedListPage> {
 
   Future<void> loadDownloadedPDFs() async {
     final directory = Directory((await getTemporaryDirectory()).path);
-    final pdfFiles = directory.listSync().where((file) => file.path.endsWith('.pdf'));
+    final pdfFiles =
+        directory.listSync().where((file) => file.path.endsWith('.pdf'));
     setState(() {
       _pdfPaths = pdfFiles.map((file) => file.path).toList();
     });
