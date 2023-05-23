@@ -10,11 +10,13 @@ class URLListPage extends StatefulWidget {
 
 class _URLListPageState extends State<URLListPage> {
   List<String> visitedUrls = [];
+  List<String> favoriteUrls = [];
 
   @override
   void initState() {
     super.initState();
     loadVisitedUrls();
+    loadFavoriteUrls();
   }
 
   @override
@@ -28,14 +30,28 @@ class _URLListPageState extends State<URLListPage> {
       body: ListView.builder(
         itemCount: visitedUrls.length,
         itemBuilder: (context, index) {
+          final url = visitedUrls[index];
+          final isFavorite = favoriteUrls.contains(url);
           return ListTile(
-            title: Text(visitedUrls[index]),
-            trailing: IconButton(
-              color: Colors.red,
-              icon: Icon(Icons.delete),
-              onPressed: () {
-                deleteVisitedUrlConfirmation(visitedUrls[index]);
-              },
+            title: Text(url),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  color: isFavorite ? Colors.orange : Colors.grey,
+                  icon: Icon(Icons.star),
+                  onPressed: () {
+                    toggleFavorite(url);
+                  },
+                ),
+                IconButton(
+                  color: Colors.red,
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    deleteVisitedUrlConfirmation(url);
+                  },
+                ),
+              ],
             ),
             onTap: () {
               String prefixedUrl = addPrefixToUrl(visitedUrls[index]);
@@ -71,6 +87,13 @@ class _URLListPageState extends State<URLListPage> {
     List<String> savedUrls = prefs.getStringList('visited_urls') ?? [];
     setState(() {
       visitedUrls = savedUrls;
+    });
+  }
+  Future<void> loadFavoriteUrls() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> savedUrls = prefs.getStringList('favorite_urls') ?? [];
+    setState(() {
+      favoriteUrls = savedUrls;
     });
   }
 
@@ -149,6 +172,20 @@ class _URLListPageState extends State<URLListPage> {
     await prefs.setStringList('visited_urls', savedUrls);
     setState(() {
       visitedUrls = savedUrls;
+    });
+  }
+
+  Future<void> toggleFavorite(String url) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> savedUrls = prefs.getStringList('favorite_urls') ?? [];
+    if (savedUrls.contains(url)) {
+      savedUrls.remove(url);
+    } else {
+      savedUrls.add(url);
+    }
+    await prefs.setStringList('favorite_urls', savedUrls);
+    setState(() {
+      favoriteUrls = savedUrls;
     });
   }
 }
