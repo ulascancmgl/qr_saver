@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'favorite.dart';
 import 'qr_code.dart';
 import 'url_list.dart';
@@ -17,6 +18,27 @@ class _HomePageState extends State<HomePage> {
     'Yüklenen PDFler': 'Downloaded PDFs',
     'Favoriler': 'Favorites',
   };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedLanguage();
+  }
+
+  Future<void> _loadSelectedLanguage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? selectedLanguage = prefs.getString('selectedLanguage');
+    if (selectedLanguage != null) {
+      setState(() {
+        currentLanguage = selectedLanguage;
+      });
+    }
+  }
+
+  Future<void> _saveSelectedLanguage(String selectedLanguage) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedLanguage', selectedLanguage);
+  }
 
   String _getTranslatedString(String originalString) {
     return currentLanguage == 'tr'
@@ -46,6 +68,7 @@ class _HomePageState extends State<HomePage> {
               setState(() {
                 currentLanguage = selectedLanguage;
               });
+              _saveSelectedLanguage(selectedLanguage);
             },
             itemBuilder: (BuildContext context) => [
               PopupMenuItem(
