@@ -21,12 +21,20 @@ class _FavoritePageState extends State<FavoritePage> {
       'İsim ekle': 'Add name',
       'İptal et': 'Cancel',
       'Kaydet': 'Save',
+      'Favorilerden Sil': 'Remove from favorites',
+      'Silmek istediğinize emin misiniz ?': 'Are you sure ?',
+      'İptal et': 'Cancel',
+      'Sil': 'Delete',
     },
     'tr': {
       'My Favorites': 'Favorilerim',
       'Add name': 'İsim ekle',
       'Cancel': 'İptal et',
       'Save': 'Kaydet',
+      'Remove from favorites': 'Favorilerden Sil',
+      'Are you sure ?': 'Silmek istediğinize emin misiniz ?',
+      'Cancel': 'İptal et',
+      'Delete': 'Sil',
     },
   };
 
@@ -94,11 +102,22 @@ class _FavoritePageState extends State<FavoritePage> {
                   );
                 },
               ),
-              trailing: IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  _showNameInputDialog(index);
-                },
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                      _showNameInputDialog(index);
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      _removeFavoriteUrl(index);
+                    },
+                  ),
+                ],
               ),
             );
           },
@@ -172,5 +191,40 @@ class _FavoritePageState extends State<FavoritePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setStringList('favorite_urls', favoriteUrls);
     prefs.setStringList('favorite_names', favoriteNames);
+  }
+
+  Future<void> _removeFavoriteUrl(int index) async {
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(_getTranslatedString('Favorilerden Sil')),
+          content:
+              Text(_getTranslatedString('Silmek istediğinize emin misiniz ?')),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text(_getTranslatedString('İptal et')),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: Text(_getTranslatedString('Sil')),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete == true) {
+      setState(() {
+        favoriteUrls.removeAt(index);
+        favoriteNames.removeAt(index);
+      });
+      await saveFavoriteUrls();
+    }
   }
 }
