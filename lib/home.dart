@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> {
 
   void _initializeBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+      adUnitId: 'ca-app-pub-4407934237724779/3408949047',
       size: AdSize.largeBanner,
       request: AdRequest(),
       listener: BannerAdListener(
